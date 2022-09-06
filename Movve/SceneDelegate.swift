@@ -13,15 +13,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        //Устанавливаю контроллер, который будет отображаться первым по умолчанию
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(frame: windowScene.coordinateSpace.bounds)
-        window?.windowScene = windowScene
-        let controller = ViewController()
-        // Подключаю navigationController
+        window = UIWindow(windowScene: windowScene)
+//        window?.windowScene = windowScene
+        window?.makeKeyAndVisible()
+        let controller = MainViewController()
         let navController = UINavigationController(rootViewController: controller)
         window?.rootViewController = navController
-        window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
