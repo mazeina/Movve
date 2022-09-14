@@ -8,21 +8,16 @@
 import UIKit
 
 class MainViewController: UIViewController {
-    let dataArray = [
-        CustomData(title: "test0", image: UIImage(named: "testImage")!, url: "test0"),
-        CustomData(title: "test1", image: UIImage(named: "testImage1")!, url: "test1"),
-        CustomData(title: "test2", image: UIImage(named: "testImage2")!, url: "test2"),
-        CustomData(title: "test3", image: UIImage(named: "testImage3")!, url: "test3"),
-        CustomData(title: "test4", image: UIImage(named: "testImage4")!, url: "test4"),
-
-    ]
+    var movieManager = MovieManager()
+    
+    var cellsData = [MovieModel]()
     
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.translatesAutoresizingMaskIntoConstraints = false
-        cv.register(CustomCollectionViewCell.self, forCellWithReuseIdentifier: CustomCollectionViewCell.identifier)
+        cv.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: MovieCollectionViewCell.identifier)
         cv.delegate = self
         cv.dataSource = self
         
@@ -42,8 +37,12 @@ class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupView()
         setupConstraints()
+        
+        movieManager.delegate = self
+        movieManager.getPopularMovie()
     }
     
     override func viewDidLayoutSubviews() {
@@ -81,20 +80,37 @@ class MainViewController: UIViewController {
     }
 }
 
+//MARK: - UICollectionViewDelegateFlowLayout, UICollectionViewDataSource methods
 extension MainViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return dataArray.count
+        return cellsData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomCollectionViewCell.identifier, for: indexPath) as! CustomCollectionViewCell
-        cell.data = dataArray[indexPath.row]
-    
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCollectionViewCell.identifier, for: indexPath) as! MovieCollectionViewCell
+        cell.setData(data: cellsData[indexPath.row])
+        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width/2.5, height: collectionView.frame.width/1.5)
+    }
+}
+
+//MARK: - MovieManagerDelegate methods
+extension MainViewController: MovieManagerDelegate {
+    
+    func didUpdateMovies(movies: [MovieModel]) {
+        cellsData = movies
+        
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
+    }
+    
+    func didFailWithError(error: Error) {
+        print(error)
     }
 }
