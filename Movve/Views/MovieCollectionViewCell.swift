@@ -7,18 +7,13 @@
 
 import UIKit
 
-class CustomCollectionViewCell: UICollectionViewCell {
+class MovieCollectionViewCell: UICollectionViewCell {
     static let identifier = "CustomCollectionViewCell"
     
-    var data: CustomData? {
-        didSet {
-            guard let data = data else {return}
-            backgroundImage.image = data.image
-        }
-    }
+    var movieManager = MovieManager()
     
-    fileprivate let backgroundImage: UIImageView = {
-        let imageView = UIImageView()
+    fileprivate var backgroundImage: UIImageView = {
+        var imageView = UIImageView()
         imageView.image = UIImage(named: "testImage")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
@@ -30,7 +25,7 @@ class CustomCollectionViewCell: UICollectionViewCell {
     
     fileprivate let nameOfMovieLabel: UILabel = {
         let label = UILabel()
-        label.text = "Name of the Movie"
+        label.text = ""
         label.textAlignment = .left
         label.font = .boldSystemFont(ofSize: 14)
         label.textColor = .black
@@ -41,7 +36,7 @@ class CustomCollectionViewCell: UICollectionViewCell {
     
     fileprivate let movieReleaseDataLabel: UILabel = {
         let label = UILabel()
-        label.text = "Dec 16, 2020"
+        label.text = ""
         label.textAlignment = .left
         label.font = .boldSystemFont(ofSize: 12)
         label.textColor = .gray
@@ -55,10 +50,18 @@ class CustomCollectionViewCell: UICollectionViewCell {
         
         setupView()
         setupConstreints()
+        
+        movieManager.delegateImage = self
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setData(data: MovieModel) {
+        nameOfMovieLabel.text = data.movieName
+        movieReleaseDataLabel.text = data.releaseData
+        movieManager.getImageByPath(imagePath: data.imagePath)
     }
     
     func setupView() {
@@ -83,5 +86,17 @@ class CustomCollectionViewCell: UICollectionViewCell {
             movieReleaseDataLabel.topAnchor.constraint(equalTo: nameOfMovieLabel.bottomAnchor, constant: 5),
             movieReleaseDataLabel.widthAnchor.constraint(equalTo: backgroundImage.widthAnchor),
         ])
+    }
+}
+
+//MARK: - MovieManagerImageDelegate methods
+extension MovieCollectionViewCell: MovieManagerImageDelegate {
+
+    func didLoadImage(with image: UIImage) {
+        backgroundImage.image = image
+    }
+    
+    func didFailWithError(error: Error) {
+        print(error)
     }
 }
